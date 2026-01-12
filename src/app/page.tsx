@@ -2,9 +2,11 @@
 
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
+// 📦 Zod: 스키마 검증 라이브러리 - 토큰 입력 폼의 유효성 검사에 사용
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStore } from "@/store/auth";
+// 📦 TanStack Query (useQuery): 데이터 페칭 및 캐싱 - API 호출 상태 관리에 사용
 import { useQuery, type QueryStatus } from "@tanstack/react-query";
 import {
   fetchClientProfile,
@@ -18,11 +20,19 @@ import {
   fetchVendorOrders401
 } from "@/api/demo";
 
+/**
+ * 📦 Zod 사용 위치: 토큰 입력 폼 검증 스키마
+ * 
+ * Zod를 사용하여 Access Token과 Refresh Token의 유효성을 검사합니다.
+ * - 최소 3자 이상 입력 필요
+ * - React Hook Form의 zodResolver와 연결되어 폼 제출 시 자동 검증
+ */
 const tokenSchema = z.object({
   accessToken: z.string().min(3, "Access token is required"),
   refreshToken: z.string().min(3, "Refresh token is required")
 });
 
+// Zod 스키마로부터 TypeScript 타입 자동 추론
 type TokenForm = z.infer<typeof tokenSchema>;
 
 export default function HomePage() {
@@ -33,10 +43,21 @@ export default function HomePage() {
     handleSubmit,
     formState: { errors }
   } = useForm<TokenForm>({
+    // Zod 스키마를 React Hook Form과 연결 (폼 제출 시 자동 검증)
     resolver: zodResolver(tokenSchema),
     defaultValues: { accessToken: "demo-access", refreshToken: "demo-refresh" }
   });
 
+  /**
+   * 📦 TanStack Query (useQuery) 사용 위치: API 호출 상태 관리
+   * 
+   * useQuery를 사용하여 각 API 호출의 상태를 관리합니다.
+   * - enabled: false로 설정하여 자동 호출 방지 (버튼 클릭 시에만 refetch)
+   * - queryKey: 캐싱 및 상태 추적을 위한 고유 키
+   * - queryFn: 실제 API 호출 함수
+   * 
+   * 각 쿼리는 status (idle, loading, error, success) 상태를 제공하여 UI에 반영할 수 있습니다.
+   */
   const hqQuery = useQuery({ queryKey: ["hq-summary"], queryFn: fetchHqSummary, enabled: false });
   const clientQuery = useQuery({
     queryKey: ["client-profile"],
@@ -240,6 +261,7 @@ export default function HomePage() {
 type ApiCardProps = {
   title: string;
   description: string;
+  // 📦 TanStack Query의 QueryStatus 타입: 'idle' | 'loading' | 'error' | 'success'
   status: QueryStatus;
   onClick: () => void;
   on401: () => void;
