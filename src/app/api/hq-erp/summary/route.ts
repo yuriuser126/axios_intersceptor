@@ -1,3 +1,24 @@
+/**
+ * 레이어: 서버 API 레이어 (Server API Layer / Backend)
+ * 
+ * 사용 라이브러리: Next.js API Routes
+ * 
+ * 역할:
+ * - 실제 HTTP 요청을 처리하는 서버 사이드 엔드포인트
+ * - 데모용으로 401/404/500 에러를 시뮬레이션
+ * - 통합 API 클라이언트에서 호출되는 실제 API 서버 역할
+ * 
+ * 위치: src/app/api 폴더의 route.ts 파일들
+ * 
+ * 구조:
+ * - /api/hq-erp/summary: 본사 ERP API
+ * - /api/client-app/profile: 고객 앱 API
+ * - /api/vendor-erp/orders: 입점사 ERP API
+ * 
+ * 아키텍처:
+ *   통합 API 클라이언트 (lib/axios.ts) -> 서버 API 레이어 (app/api) <- 여기
+ */
+
 import { NextResponse } from "next/server";
 
 /**

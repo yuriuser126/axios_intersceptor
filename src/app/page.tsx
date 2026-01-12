@@ -1,3 +1,31 @@
+/**
+ * ============================================================================
+ * 레이어: UI 레이어 (Presentation Layer)
+ * ============================================================================
+ * 
+ * 📦 사용 라이브러리:
+ *   - React Hook Form: 폼 상태 관리
+ *   - Zod: 폼 입력값 유효성 검사 (스키마 검증)
+ *   - TanStack Query (useQuery): API 호출 상태 관리 (loading, error, success)
+ *   - Zustand (useAuthStore): 전역 토큰 상태 읽기/쓰기
+ * 
+ * 🔗 연결 레이어:
+ *   - API 호출 레이어 (src/api/demo.ts): API 호출 함수 사용
+ *   - 전역 상태 레이어 (src/store/auth.ts): 토큰 상태 관리
+ * 
+ * 역할:
+ * - 사용자 인터페이스 렌더링
+ * - 폼 입력 처리 및 검증
+ * - API 호출 상태 표시
+ * - 사용자 인터랙션 처리
+ * 
+ * 아키텍처 흐름:
+ *   1. 사용자가 폼 입력 → Zod로 검증 → Zustand에 저장
+ *   2. 사용자가 버튼 클릭 → API 호출 함수 실행
+ *   3. API 호출 함수 → 통합 API 클라이언트 → 서버 API
+ *   4. 응답 상태 → useQuery로 관리 → UI에 반영
+ */
+
 "use client";
 
 import { useMemo } from "react";
@@ -5,6 +33,7 @@ import { useForm } from "react-hook-form";
 // 📦 Zod: 스키마 검증 라이브러리 - 토큰 입력 폼의 유효성 검사에 사용
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+// 📦 Zustand: 전역 상태 관리 - 토큰 상태를 읽고 쓰는 데 사용
 import { useAuthStore } from "@/store/auth";
 // 📦 TanStack Query (useQuery): 데이터 페칭 및 캐싱 - API 호출 상태 관리에 사용
 import { useQuery, type QueryStatus } from "@tanstack/react-query";

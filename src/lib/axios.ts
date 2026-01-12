@@ -1,17 +1,36 @@
 /**
- * Axios 인터셉터 공통 처리 모듈
+ * ============================================================================
+ * 레이어: 통합 API 클라이언트 (Integrated API Client Layer)
+ * ============================================================================
  * 
- * 이 모듈은 여러 API 클라이언트(HQ ERP, Client App, Vendor ERP)에 대한
- * 공통 axios 인터셉터를 제공합니다.
+ * 📦 사용 라이브러리: axios
+ * 🔗 연결 레이어:
+ *   - Zustand (src/store/auth.ts): 토큰 상태 참조
+ *   - API 호출 레이어 (src/api/demo.ts): 이 모듈을 사용하여 API 호출
+ * 
+ * 역할:
+ * - 여러 API 클라이언트(HQ ERP, Client App, Vendor ERP)에 대한 공통 axios 인터셉터 제공
+ * - 각 API별로 독립적인 인스턴스 생성 (baseURL 분리)
  * 
  * 주요 기능:
- * 1. 요청 인터셉터: 모든 API 요청에 Authorization 헤더 자동 추가
+ * 1. 요청 인터셉터: 모든 API 요청에 Authorization 헤더 자동 추가 (Zustand에서 토큰 참조)
  * 2. 응답 인터셉터: 401 토큰 만료 시 자동 refresh 및 재요청
  * 3. 전역 에러 처리: 404/500 등 에러 발생 시 에러 페이지로 리다이렉트
  * 
  * 사용 방법:
- * - 각 API별로 독립적인 인스턴스(hqApi, clientApi, vendorApi)를 import하여 사용
- * - 토큰은 Zustand 스토어(useAuthStore)에서 관리되며, 인터셉터가 자동으로 참조
+ * - src/api/demo.ts에서 hqApi, clientApi, vendorApi를 import하여 사용
+ * - 각 인스턴스는 독립적으로 동작하지만, 공통 인터셉터 로직을 공유
+ * 
+ * 아키텍처:
+ *   UI 레이어 (page.tsx)
+ *      ↓
+ *   API 호출 레이어 (api/demo.ts) ← 이 레이어
+ *      ↓
+ *   통합 API 클라이언트 (lib/axios.ts) ← 여기
+ *      ↓
+ *   전역 상태 (store/auth.ts) ← 토큰 참조
+ *      ↓
+ *   서버 API (app/api/**)
  */
 
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
@@ -122,11 +141,8 @@ function attachInterceptors(instance: AxiosInstance, apiName: string) {
    */
   instance.interceptors.request.use((config) => {
     const { accessToken } = useAuthStore.getState();
-    if (accessToken) {
-      config.headers = {
-        ...config.headers,
-        Authorization: `Bearer ${accessToken}`
-      };
+    if (accessToken && config.headers) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
   });
